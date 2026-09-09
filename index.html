@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Koushal Games — Skill Arena</title>
+<meta name="description" content="Koushal Games — a free skill-based mini-game arena. Play, earn virtual coins and XP, climb the leaderboard. No real money involved.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   KOUSHAL GAMES — design tokens
+   ============================================================ */
+:root{
+  --bg: #060910;
+  --bg-elevated: #0a0f1a;
+  --surface: #0e1626;
+  --surface-2: #131f36;
+  --surface-3: #182647;
+  --border: #223252;
+  --border-soft: #1a2440;
+  --text: #eaf0fb;
+  --text-dim: #93a3c4;
+  --text-faint: #5c6c8f;
+
+  --blue: #2e7dff;
+  --blue-bright: #5ea1ff;
+  --blue-deep: #1a4fc4;
+  --cyan: #22d3ee;
+  --gold: #ffcf4d;
+  --gold-deep: #e8a63a;
+  --green: #33e08a;
+  --red: #ff5470;
+
+  --font-display: 'Chakra Petch', 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  --radius-s: 4px;
+  --radius-m: 10px;
+  --shadow-glow: 0 0 0 1px rgba(46,125,255,.15), 0 20px 60px -20px rgba(46,125,255,.35);
+  --clip-card: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
+  --clip-card-sm: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0;
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(46,125,255,.16), transparent 60%),
+    radial-gradient(900px 500px at -10% 20%, rgba(34,211,238,.08), transparent 55%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+h1,h2,h3,h4{ font-family:var(--font-display); margin:0; letter-spacing:.01em; }
+p{ margin:0; }
+a{ color:inherit; text-decoration:none; }
+button{ font-family:var(--font-body); cursor:pointer; }
+ul{ margin:0; padding:0; list-style:none; }
+img{ max-width:100%; display:block; }
+:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+::selection{ background:var(--blue); color:#fff; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }
+}
+
+.wrap{ max-width:1180px; margin:0 auto; padding:0 24px; }
+.hidden{ display:none !important; }
+
+/* ---------- scrollbar ---------- */
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-track{ background:var(--bg); }
+::-webkit-scrollbar-thumb{ background:var(--surface-3); border-radius:8px; border:2px solid var(--bg); }
+
+/* ============================================================
+   TOP NOTICE BAR
+   ============================================================ */
+.notice-bar{
+  background:linear-gradient(90deg, #0d1730, #101d3d 50%, #0d1730);
+  border-bottom:1px solid var(--border-soft);
+  color:var(--gold);
+  font-size:12.5px;
+  font-weight:600;
+  text-align:center;
+  padding:7px 16px;
+  letter-spacing:.02em;
+}
+.notice-bar strong{ color:var(--gold); }
+.notice-bar span.dim{ color:var(--text-dim); font-weight:500; }
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+header.nav{
+  position:sticky; top:0; z-index:200;
+  background:rgba(6,9,16,.86);
+  backdrop-filter:blur(14px) saturate(140%);
+  border-bottom:1px solid var(--border-soft);
+}
+.nav-row{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 24px;
+  max-width:1180px; margin:0 auto;
+  gap:16px;
+}
+.brand{ display:flex; align-items:center; gap:10px; }
+.brand-mark{
+  width:34px; height:34px; flex:none;
+  background:linear-gradient(135deg, var(--blue), var(--cyan));
+  clip-path:polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  display:grid; place-items:center;
+  font-family:var(--font-display); font-weight:700; color:#04070f; font-size:15px;
+}
+.brand-name{ font-family:var(--font-display); font-weight:700; font-size:18px; letter-spacing:.02em; }
+.brand-name span{ color:var(--blue-bright); }
+
+nav.primary-nav{ display:flex; gap:2px; }
+nav.primary-nav button{
+  background:none; border:none; color:var(--text-dim);
+  font-size:14.5px; font-weight:600; padding:9px 16px;
+  border-radius:var(--radius-s); transition:color .15s ease, background .15s ease;
+  position:relative;
+}
+nav.primary-nav button:hover{ color:var(--text); background:rgba(255,255,255,.04); }
+nav.primary-nav button.active{ color:var(--blue-bright); }
+nav.primary-nav button.active::after{
+  content:''; position:absolute; left:14px; right:14px; bottom:2px; height:2px;
+  background:linear-gradient(90deg, var(--blue), var(--cyan));
+  border-radius:2px;
+}
+
+.nav-actions{ display:flex; align-items:center; gap:10px; }
+.coin-pill{
+  display:flex; align-items:center; gap:7px;
+  background:linear-gradient(180deg, #1a1508, #120e05);
+  border:1px solid #4a3a12; color:var(--gold);
+  font-family:var(--font-display); font-weight:600; font-size:14px;
+  padding:6px 12px 6px 8px; border-radius:999px;
+  white-space:nowrap;
+}
+.coin-pill .coin-ico{ width:18px; height:18px; }
+.icon-btn{
+  width:36px; height:36px; border-radius:999px;
+  background:var(--surface); border:1px solid var(--border);
+  display:grid; place-items:center; color:var(--text-dim);
+  transition:color .15s, border-color .15s, background .15s;
+  flex:none;
+}
+.icon-btn:hover{ color:var(--text); border-color:var(--blue); }
+.icon-btn.on{ color:var(--cyan); border-color:var(--cyan); }
+.mini-avatar{
+  width:36px; height:36px; border-radius:999px; flex:none;
+  background:linear-gradient(135deg, var(--surface-3), var(--surface-2));
+  border:1px solid var(--border);
+  display:grid; place-items:center; font-size:17px;
+}
+.hamburger{ display:none; }
+
+@media (max-width: 880px){
+  nav.primary-nav{ display:none; }
+  .hamburger{
+    display:grid; place-items:center; width:36px; height:36px;
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-s);
+    color:var(--text);
+  }
+  .mobile-nav{
+    display:none; flex-direction:column; gap:2px; padding:10px 16px 16px;
+    border-top:1px solid var(--border-soft);
+  }
+  .mobile-nav.open{ display:flex; }
+  .mobile-nav button{
+    background:none; border:none; color:var(--text-dim); text-align:left;
+    font-size:15px; font-weight:600; padding:11px 10px; border-radius:var(--radius-s);
+  }
+  .mobile-nav button.active{ color:var(--blue-bright); background:rgba(46,125,255,.08); }
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  font-weight:600; font-size:14.5px; padding:11px 22px;
+  border-radius:var(--radius-s); border:1px solid transparent;
+  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
+  white-space:nowrap;
+}
+.btn-primary{
+  background:linear-gradient(135deg, var(--blue), var(--blue-deep));
+  color:#fff; box-shadow:0 8px 24px -8px rgba(46,125,255,.6);
+}
+.btn-primary:hover{ transform:translateY(-1px); box-shadow:0 12px 30px -8px rgba(46,125,255,.75); }
+.btn-ghost{
+  background:transparent; border-color:var(--border); color:var(--text);
+}
+.btn-ghost:hover{ border-color:var(--blue); color:var(--blue-bright); }
+.btn-gold{
+  background:linear-gradient(135deg, var(--gold), var(--gold-deep)); color:#221703;
+  box-shadow:0 8px 24px -10px rgba(255,207,77,.55);
+}
+.btn-gold:hover{ transform:translateY(-1px); }
+.btn:disabled{ opacity:.45; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
+.btn-block{ width:100%; }
+.btn-sm{ padding:8px 16px; font-size:13.5px; }
+
+/* ============================================================
+   VIEWS
+   ============================================================ */
+main{ min-height:70vh; }
+.view{ padding:44px 0 80px; }
+
+.section-head{ margin-bottom:28px; max-width:640px; }
+.section-head .kicker{ color:var(--blue-bright); font-weight:700; font-size:13px; margin-bottom:8px; display:block; }
+.section-head h2{ font-size:clamp(24px,3.4vw,32px); font-weight:700; }
+.section-head p{ color:var(--text-dim); margin-top:8px; font-size:15px; }
+
+/* ---------------- HOME / HERO ---------------- */
+.hero{
+  display:grid; grid-template-columns:1.15fr .85fr; gap:40px; align-items:center;
+  padding:56px 0 64px;
+}
+.hero-eyebrow{ color:var(--cyan); font-weight:700; font-size:13.5px; margin-bottom:14px; letter-spacing:.02em; }
+.hero h1{
+  font-size:clamp(34px,5vw,54px); line-height:1.05; font-weight:700;
+}
+.hero h1 .accent{ color:var(--blue-bright); }
+.hero-sub{ color:var(--text-dim); font-size:17px; max-width:520px; margin-top:18px; }
+.hero-cta{ display:flex; gap:12px; margin-top:30px; flex-wrap:wrap; }
+.hero-note{ margin-top:18px; font-size:13px; color:var(--text-faint); display:flex; align-items:center; gap:8px; }
+.hero-note .dot{ width:6px; height:6px; border-radius:99px; background:var(--green); flex:none; }
+
+.hud{
+  background:linear-gradient(160deg, var(--surface-2), var(--surface));
+  border:1px solid var(--border);
+  clip-path:var(--clip-card);
+  padding:26px;
+  position:relative;
+}
+.hud::before{
+  content:''; position:absolute; inset:0; clip-path:var(--clip-card);
+  padding:1px; background:linear-gradient(160deg, rgba(46,125,255,.5), transparent 40%, rgba(34,211,238,.25));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude;
+  pointer-events:none;
+}
+.hud-top{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:22px; }
+.hud-label{ font-size:11.5px; color:var(--text-faint); font-weight:700; }
+.hud-avatar{
+  width:52px; height:52px; border-radius:999px;
+  background:linear-gradient(135deg, var(--surface-3), var(--surface));
+  border:2px solid var(--blue); display:grid; place-items:center; font-size:24px;
+}
+.hud-stat-row{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+.hud-stat-row .val{ font-family:var(--font-display); font-size:30px; font-weight:700; }
+.hud-stat-row .val small{ font-size:14px; color:var(--text-dim); font-weight:500; }
+.xp-track{ height:8px; background:var(--bg); border-radius:99px; overflow:hidden; margin:8px 0 18px; border:1px solid var(--border-soft); }
+.xp-fill{ height:100%; background:linear-gradient(90deg, var(--blue), var(--cyan)); border-radius:99px; transition:width .5s ease; }
+.hud-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.hud-chip{
+  background:var(--bg-elevated); border:1px solid var(--border-soft); border-radius:var(--radius-s);
+  padding:12px; text-align:left;
+}
+.hud-chip .num{ font-family:var(--font-display); font-size:19px; font-weight:700; }
+.hud-chip .lab{ font-size:11.5px; color:var(--text-faint); margin-top:2px; }
+
+@media (max-width:900px){
+  .hero{ grid-template-columns:1fr; padding-top:30px; }
+}
+
+/* ---------------- STAT STRIP ---------------- */
+.stat-strip{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+  background:var(--border-soft); border:1px solid var(--border-soft);
+  margin:10px 0 60px;
+}
+.stat-cell{ background:var(--bg-elevated); padding:22px 20px; }
+.stat-cell .n{ font-family:var(--font-display); font-size:26px; font-weight:700; color:var(--blue-bright); }
+.stat-cell .l{ font-size:12.5px; color:var(--text-dim); margin-top:4px; }
+@media (max-width:700px){ .stat-strip{ grid-template-columns:repeat(2,1fr); } }
+
+/* ---------------- CARDS GRID (games) ---------------- */
+.game-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; }
+.game-card{
+  background:var(--surface); border:1px solid var(--border);
+  clip-path:var(--clip-card); padding:22px;
+  display:flex; flex-direction:column; gap:14px;
+  transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.game-card:hover{ transform:translateY(-4px); border-color:var(--blue); box-shadow:var(--shadow-glow); }
+.game-card .icon{
+  width:48px; height:48px; border-radius:var(--radius-s);
+  background:linear-gradient(135deg, rgba(46,125,255,.18), rgba(34,211,238,.1));
+  border:1px solid var(--border-soft);
+  display:grid; place-items:center; font-size:24px;
+}
+.game-card h3{ font-size:19px; font-weight:600; }
+.game-card p{ color:var(--text-dim); font-size:13.8px; flex:1; }
+.game-card .meta-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.tag{
+  font-size:11px; font-weight:700; padding:4px 9px; border-radius:99px;
+  border:1px solid var(--border-soft); color:var(--text-dim); letter-spacing:.02em;
+}
+.tag.easy{ color:var(--green); border-color:rgba(51,224,138,.35); }
+.tag.medium{ color:var(--gold); border-color:rgba(255,207,77,.35); }
+.tag.hard{ color:var(--red); border-color:rgba(255,84,112,.35); }
+.reward-hint{ font-size:12.5px; color:var(--text-faint); }
+
+/* ---------------- LEADERBOARD ---------------- */
+.lb-controls{ display:flex; gap:8px; margin-bottom:18px; }
+.chip-toggle{
+  background:var(--surface); border:1px solid var(--border); color:var(--text-dim);
+  font-size:13px; font-weight:600; padding:8px 16px; border-radius:99px;
+}
+.chip-toggle.active{ background:rgba(46,125,255,.14); border-color:var(--blue); color:var(--blue-bright); }
+
+.lb-list{ display:flex; flex-direction:column; gap:8px; }
+.lb-row{
+  display:grid; grid-template-columns:42px 44px 1fr auto; gap:14px; align-items:center;
+  background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-m);
+  padding:12px 16px;
+  opacity:0; transform:translateX(-10px);
+  animation:lbIn .4s ease forwards;
+}
+@keyframes lbIn{ to{ opacity:1; transform:translateX(0); } }
+.lb-row.me{ border-color:var(--blue); background:linear-gradient(90deg, rgba(46,125,255,.1), var(--surface)); }
+.lb-rank{ font-family:var(--font-display); font-size:17px; font-weight:700; color:var(--text-dim); text-align:center; }
+.lb-row:nth-child(1) .lb-rank{ color:var(--gold); }
+.lb-row:nth-child(2) .lb-rank{ color:#c9d3e6; }
+.lb-row:nth-child(3) .lb-rank{ color:#d99a5b; }
+.lb-avatar{
+  width:38px; height:38px; border-radius:999px; background:var(--surface-3);
+  display:grid; place-items:center; font-size:19px; border:1px solid var(--border-soft);
+}
+.lb-name{ font-weight:600; font-size:14.5px; }
+.lb-name .you-badge{ font-size:10.5px; color:var(--blue-bright); font-weight:700; margin-left:6px; border:1px solid var(--blue); padding:1px 6px; border-radius:99px; }
+.lb-sub{ font-size:12px; color:var(--text-faint); margin-top:1px; }
+.lb-points{ font-family:var(--font-display); font-weight:700; font-size:16px; color:var(--cyan); text-align:right; }
+
+/* ---------------- REWARDS / ACHIEVEMENTS ---------------- */
+.rewards-grid{ display:grid; grid-template-columns:1.1fr .9fr; gap:24px; margin-bottom:44px; }
+@media (max-width:820px){ .rewards-grid{ grid-template-columns:1fr; } }
+
+.streak-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-m); padding:24px;
+}
+.streak-days{ display:flex; gap:8px; margin:18px 0 6px; flex-wrap:wrap; }
+.streak-day{
+  flex:1; min-width:46px; aspect-ratio:1; border-radius:var(--radius-s);
+  border:1px solid var(--border-soft); background:var(--bg-elevated);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  font-size:11px; color:var(--text-faint); font-weight:700;
+}
+.streak-day .c{ font-size:13px; color:var(--gold); }
+.streak-day.done{ border-color:var(--green); background:rgba(51,224,138,.08); color:var(--green); }
+.streak-day.today{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(46,125,255,.15); }
+
+.ach-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; }
+.ach-card{
+  background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-m);
+  padding:16px; display:flex; gap:12px; align-items:flex-start;
+  opacity:.45; filter:grayscale(.7);
+  transition:opacity .2s, filter .2s, border-color .2s;
+}
+.ach-card.unlocked{ opacity:1; filter:none; border-color:rgba(255,207,77,.4); background:linear-gradient(160deg, rgba(255,207,77,.06), var(--surface)); }
+.ach-ico{ width:38px; height:38px; border-radius:var(--radius-s); background:var(--bg-elevated); display:grid; place-items:center; font-size:19px; flex:none; }
+.ach-title{ font-weight:600; font-size:14.5px; }
+.ach-desc{ font-size:12.5px; color:var(--text-dim); margin-top:2px; }
+.ach-reward{ font-size:11.5px; color:var(--gold); margin-top:6px; font-weight:700; }
+
+/* ---------------- PROFILE ---------------- */
+.profile-grid{ display:grid; grid-template-columns:.9fr 1.4fr; gap:24px; }
+@media (max-width:860px){ .profile-grid{ grid-template-columns:1fr; } }
+.profile-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-m); padding:26px; }
+.avatar-picker{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+.avatar-opt{
+  width:44px; height:44px; border-radius:999px; background:var(--bg-elevated);
+  border:2px solid var(--border-soft); display:grid; place-items:center; font-size:20px;
+}
+.avatar-opt.selected{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(46,125,255,.18); }
+.big-avatar{
+  width:84px; height:84px; border-radius:999px; margin:0 auto 14px;
+  background:linear-gradient(135deg, var(--surface-3), var(--surface));
+  border:2px solid var(--blue); display:grid; place-items:center; font-size:40px;
+}
+.field-label{ font-size:12px; font-weight:700; color:var(--text-faint); margin:18px 0 6px; display:block; }
+.field-label:first-of-type{ margin-top:0; }
+input.text-input{
+  width:100%; background:var(--bg-elevated); border:1px solid var(--border); color:var(--text);
+  padding:11px 13px; border-radius:var(--radius-s); font-size:14.5px; font-family:var(--font-body);
+}
+input.text-input:focus{ border-color:var(--blue); }
+
+.profile-stats-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:16px; }
+.pstat{ background:var(--bg-elevated); border:1px solid var(--border-soft); border-radius:var(--radius-s); padding:14px; text-align:center; }
+.pstat .num{ font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--blue-bright); }
+.pstat .lab{ font-size:11px; color:var(--text-faint); margin-top:3px; }
+
+.history-list{ display:flex; flex-direction:column; gap:8px; margin-top:14px; max-height:420px; overflow-y:auto; padding-right:4px; }
+.history-row{
+  display:flex; align-items:center; gap:12px;
+  background:var(--bg-elevated); border:1px solid var(--border-soft); border-radius:var(--radius-s); padding:11px 14px;
+}
+.history-ico{ width:34px; height:34px; border-radius:var(--radius-s); background:var(--surface-2); display:grid; place-items:center; font-size:16px; flex:none; }
+.history-main{ flex:1; min-width:0; }
+.history-title{ font-size:13.5px; font-weight:600; }
+.history-time{ font-size:11.5px; color:var(--text-faint); }
+.history-result{ font-size:12px; font-weight:700; padding:3px 9px; border-radius:99px; flex:none; }
+.history-result.win{ color:var(--green); background:rgba(51,224,138,.1); }
+.history-result.loss{ color:var(--red); background:rgba(255,84,112,.1); }
+.history-result.draw{ color:var(--text-dim); background:rgba(255,255,255,.06); }
+.history-coins{ font-size:12.5px; color:var(--gold); font-weight:700; flex:none; min-width:56px; text-align:right; }
+.empty-note{ color:var(--text-faint); font-size:13.5px; padding:20px 0; text-align:center; }
+
+/* ============================================================
+   MODAL (game play + info modals)
+   ============================================================ */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(3,5,10,.78); backdrop-filter:blur(6px);
+  display:flex; align-items:center; justify-content:center; z-index:500; padding:20px;
+  opacity:0; pointer-events:none; transition:opacity .2s ease;
+}
+.modal-overlay.open{ opacity:1; pointer-events:auto; }
+.modal-box{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-m);
+  width:100%; max-width:560px; max-height:88vh; overflow-y:auto;
+  transform:translateY(14px) scale(.98); transition:transform .22s ease;
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.6);
+}
+.modal-overlay.open .modal-box{ transform:translateY(0) scale(1); }
+.modal-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 22px; border-bottom:1px solid var(--border-soft);
+  position:sticky; top:0; background:var(--surface); z-index:2;
+}
+.modal-head h3{ font-size:18px; font-weight:700; display:flex; align-items:center; gap:10px; }
+.modal-close{
+  width:32px; height:32px; border-radius:99px; background:var(--bg-elevated); border:1px solid var(--border);
+  color:var(--text-dim); display:grid; place-items:center; flex:none;
+}
+.modal-close:hover{ color:var(--text); border-color:var(--red); }
+.modal-body{ padding:22px; }
+
+/* ---------------- GAME PLAY AREAS ---------------- */
+.game-status-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+.game-status-row .status-txt{ font-size:14px; color:var(--text-dim); font-weight:600; }
+.game-status-row .status-val{ color:var(--text); }
+
+/* Tic Tac Toe */
+.ttt-board{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; max-width:280px; margin:0 auto; }
+.ttt-cell{
+  aspect-ratio:1; background:var(--bg-elevated); border:1px solid var(--border);
+  border-radius:var(--radius-s); display:grid; place-items:center;
+  font-family:var(--font-display); font-size:34px; font-weight:700; color:var(--blue-bright);
+}
+.ttt-cell.o{ color:var(--gold); }
+.ttt-cell:not(.filled):hover{ border-color:var(--blue); cursor:pointer; }
+
+/* Memory Match */
+.mem-board{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; max-width:340px; margin:0 auto; }
+.mem-card{
+  aspect-ratio:1; border-radius:var(--radius-s); position:relative; cursor:pointer;
+  perspective:600px;
+}
+.mem-card-inner{
+  width:100%; height:100%; position:relative; transform-style:preserve-3d;
+  transition:transform .35s ease;
+}
+.mem-card.flipped .mem-card-inner, .mem-card.matched .mem-card-inner{ transform:rotateY(180deg); }
+.mem-face{
+  position:absolute; inset:0; backface-visibility:hidden; border-radius:var(--radius-s);
+  display:grid; place-items:center; font-size:22px; border:1px solid var(--border);
+}
+.mem-face.front{ background:linear-gradient(150deg, var(--surface-3), var(--surface-2)); color:var(--blue-bright); font-family:var(--font-display); font-weight:700; }
+.mem-face.back{ background:var(--bg-elevated); transform:rotateY(180deg); }
+.mem-card.matched .mem-face.back{ border-color:var(--green); }
+
+/* Number Guess */
+.ng-input-row{ display:flex; gap:10px; max-width:320px; margin:0 auto 14px; }
+.ng-input-row input{ flex:1; text-align:center; font-size:20px; font-family:var(--font-display); }
+.ng-hint{ text-align:center; font-size:15px; color:var(--text-dim); min-height:22px; margin-bottom:10px; }
+.ng-history{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:10px; }
+.ng-chip{ background:var(--bg-elevated); border:1px solid var(--border-soft); border-radius:99px; padding:4px 11px; font-size:12.5px; color:var(--text-dim); }
+
+/* Reaction */
+.rx-pad{
+  height:220px; border-radius:var(--radius-m); border:1px solid var(--border);
+  display:grid; place-items:center; font-family:var(--font-display); font-size:20px; font-weight:700;
+  background:var(--bg-elevated); color:var(--text-dim); user-select:none; transition:background .12s;
+}
+.rx-pad.wait{ background:var(--bg-elevated); }
+.rx-pad.go{ background:linear-gradient(160deg, #0f3d24, #0a2a19); color:var(--green); border-color:var(--green); cursor:pointer; }
+.rx-pad.early{ background:linear-gradient(160deg, #3d0f16, #2a0a10); color:var(--red); border-color:var(--red); }
+
+/* RPS */
+.rps-choices{ display:flex; gap:14px; justify-content:center; margin:10px 0 18px; }
+.rps-btn{
+  width:76px; height:76px; border-radius:999px; background:var(--bg-elevated); border:1px solid var(--border);
+  font-size:32px; display:grid; place-items:center; transition:transform .15s, border-color .15s;
+}
+.rps-btn:hover{ transform:translateY(-3px); border-color:var(--blue); }
+.rps-arena{ display:flex; align-items:center; justify-content:center; gap:28px; margin:16px 0; }
+.rps-slot{ text-align:center; }
+.rps-slot .face{ width:64px; height:64px; border-radius:999px; background:var(--bg-elevated); border:1px solid var(--border); display:grid; place-items:center; font-size:30px; margin:0 auto 6px; }
+.rps-slot .lab{ font-size:12px; color:var(--text-faint); font-weight:700; }
+.rps-vs{ font-family:var(--font-display); color:var(--text-faint); font-weight:700; }
+.rps-score{ text-align:center; font-size:13.5px; color:var(--text-dim); margin-bottom:6px; }
+
+.game-result-banner{
+  margin-top:18px; padding:16px; border-radius:var(--radius-s); text-align:center; display:none;
+}
+.game-result-banner.show{ display:block; }
+.game-result-banner.win{ background:rgba(51,224,138,.1); border:1px solid rgba(51,224,138,.35); }
+.game-result-banner.loss{ background:rgba(255,84,112,.1); border:1px solid rgba(255,84,112,.35); }
+.game-result-banner.draw{ background:rgba(255,255,255,.05); border:1px solid var(--border); }
+.game-result-banner .title{ font-family:var(--font-display); font-weight:700; font-size:18px; margin-bottom:4px; }
+.game-result-banner .rewards{ font-size:13.5px; color:var(--text-dim); }
+.game-result-actions{ display:flex; gap:10px; margin-top:14px; justify-content:center; }
+
+/* ============================================================
+   DAILY REWARD POPUP
+   ============================================================ */
+.reward-popup .modal-box{ max-width:380px; text-align:center; }
+.reward-popup .modal-body{ padding:30px 26px 26px; }
+.reward-chest{
+  width:88px; height:88px; margin:0 auto 18px; border-radius:var(--radius-m);
+  background:linear-gradient(150deg, var(--surface-3), var(--surface-2)); border:1px solid var(--gold);
+  display:grid; place-items:center; font-size:44px;
+  box-shadow:0 0 40px -10px rgba(255,207,77,.4);
+}
+.reward-popup h3{ font-size:20px; margin-bottom:6px; }
+.reward-popup p.sub{ color:var(--text-dim); font-size:13.5px; margin-bottom:18px; }
+.reward-amount{ font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--gold); margin-bottom:4px; }
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+#toast-stack{ position:fixed; top:80px; right:20px; z-index:800; display:flex; flex-direction:column; gap:10px; max-width:320px; }
+.toast{
+  background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--blue);
+  border-radius:var(--radius-s); padding:12px 16px; font-size:13.5px; box-shadow:0 12px 30px -12px rgba(0,0,0,.6);
+  animation:toastIn .25s ease;
+  display:flex; gap:10px; align-items:flex-start;
+}
+.toast.level{ border-left-color:var(--gold); }
+.toast.ach{ border-left-color:var(--cyan); }
+.toast b{ display:block; margin-bottom:2px; }
+.toast .t-ico{ font-size:18px; }
+@keyframes toastIn{ from{ opacity:0; transform:translateX(20px);} to{ opacity:1; transform:translateX(0);} }
+.toast.leaving{ animation:toastOut .25s ease forwards; }
+@keyframes toastOut{ to{ opacity:0; transform:translateX(20px); } }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer{ border-top:1px solid var(--border-soft); background:var(--bg-elevated); padding:48px 0 26px; margin-top:40px; }
+.footer-grid{ display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:30px; margin-bottom:34px; }
+@media (max-width:760px){ .footer-grid{ grid-template-columns:1fr 1fr; } }
+.footer-brand p{ color:var(--text-dim); font-size:13.5px; margin-top:10px; max-width:280px; }
+.footer-col h4{ font-size:13px; color:var(--text-faint); margin-bottom:12px; font-weight:700; }
+.footer-col ul{ display:flex; flex-direction:column; gap:9px; }
+.footer-col a, .footer-col button{ background:none; border:none; padding:0; text-align:left; color:var(--text-dim); font-size:13.8px; }
+.footer-col a:hover, .footer-col button:hover{ color:var(--blue-bright); }
+.footer-legal-notice{
+  background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-s);
+  padding:16px 18px; font-size:12.8px; color:var(--text-dim); line-height:1.6; margin-bottom:22px;
+}
+.footer-legal-notice b{ color:var(--gold); }
+.footer-bottom{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; font-size:12.5px; color:var(--text-faint); }
+
+/* generic legal modal text */
+.legal-text p{ margin-bottom:12px; color:var(--text-dim); font-size:14px; line-height:1.7; }
+.legal-text h4{ font-size:14.5px; margin:16px 0 6px; color:var(--text); }
+</style>
+
+<style id="auth-system-css">
+#auth-overlay{position:fixed;inset:0;background:rgba(5,8,18,.97);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-box{width:min(430px,100%);background:#0e1424;border:1px solid #263653;border-radius:22px;padding:28px;box-shadow:0 25px 80px rgba(0,0,0,.55)}
+.auth-box h1{margin:0 0 8px;font-size:28px}.auth-sub{color:#9aa8c0;margin-bottom:22px}.auth-tabs{display:flex;gap:8px;margin-bottom:18px}.auth-tab{flex:1;padding:11px;border:1px solid #2b3b59;background:#121b2d;color:#dbe7ff;border-radius:10px;cursor:pointer}.auth-tab.active{background:#1769ff;border-color:#1769ff}.auth-field{margin:12px 0}.auth-field label{display:block;font-size:13px;color:#aab7cd;margin-bottom:6px}.auth-field input{width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:1px solid #30415f;background:#09101d;color:#fff;outline:none}.auth-btn{width:100%;padding:13px;border:0;border-radius:11px;background:#1769ff;color:#fff;font-weight:700;cursor:pointer;margin-top:10px}.auth-msg{min-height:20px;color:#ffb4b4;font-size:13px;margin-top:10px}.auth-note{font-size:12px;color:#7f8da5;margin-top:15px;line-height:1.5}.auth-hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="auth-overlay">
+ <div class="auth-box">
+  <h1>🎮 Koushal Games</h1>
+  <div class="auth-sub">Create an account to save your virtual game progress.</div>
+  <div class="auth-tabs"><button class="auth-tab active" id="login-tab">Login</button><button class="auth-tab" id="signup-tab">Sign Up</button></div>
+  <div class="auth-field"><label>Username</label><input id="auth-user" maxlength="18" autocomplete="username" placeholder="Enter username"></div>
+  <div class="auth-field"><label>Password</label><input id="auth-pass" type="password" minlength="6" autocomplete="current-password" placeholder="At least 6 characters"></div>
+  <button class="auth-btn" id="auth-submit">Login</button>
+  <div class="auth-msg" id="auth-msg"></div>
+  <div class="auth-note">Virtual Coins only — no cash value, deposits, betting, or cash withdrawals.</div>
+ </div>
+</div>
+
+
+<div class="notice-bar">
+  <strong>Virtual Coins — No Cash Value.</strong>
+  <span class="dim">Koushal Games uses in-app coins &amp; XP only. No real-money deposits, withdrawals or prizes — ever.</span>
+</div>
+
+<header class="nav">
+  <div class="nav-row">
+    <div class="brand">
+      <div class="brand-mark">KG</div>
+      <div class="brand-name">KOUSHAL <span>GAMES</span></div>
+    </div>
+
+    <nav class="primary-nav" id="primary-nav">
+      <button data-view="home" class="active">Home</button>
+      <button data-view="games">Games</button>
+      <button data-view="leaderboard">Leaderboard</button>
+      <button data-view="rewards">Rewards</button>
+      <button data-view="profile">Profile</button>
+    </nav>
+
+    <div class="nav-actions">
+      <div class="coin-pill" title="Virtual coins — no cash value">
+        <svg class="coin-ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#ffcf4d" stroke="#a97c1c" stroke-width="1.4"/><text x="12" y="16" font-size="11" text-anchor="middle" fill="#3a2a05" font-weight="700" font-family="Chakra Petch">K</text></svg>
+        <span id="coin-display">500</span>
+      </div>
+      <button class="icon-btn on" id="sound-toggle" title="Toggle sound">
+        <svg id="sound-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18 6a9 9 0 0 1 0 12"/></svg>
+      </button>
+      <button class="mini-avatar" id="nav-avatar" title="Profile" onclick="switchView('profile')">🎮</button>
+      <button class="hamburger" id="hamburger-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-nav" id="mobile-nav">
+    <button data-view="home" class="active">Home</button>
+    <button data-view="games">Games</button>
+    <button data-view="leaderboard">Leaderboard</button>
+    <button data-view="rewards">Rewards</button>
+    <button data-view="profile">Profile</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= HOME ================= -->
+  <section class="view" id="view-home">
+    <div class="wrap">
+      <div class="hero">
+        <div>
+          <div class="hero-eyebrow">SKILL-BASED MINI-GAME ARENA</div>
+          <h1>Five games.<br>One score to <span class="accent">beat.</span></h1>
+          <p class="hero-sub">Koushal Games is a free arena of fast, skill-based mini games. Sharpen your reflexes and logic, earn virtual coins and XP, unlock badges, and climb the leaderboard — no cash, ever.</p>
+          <div class="hero-cta">
+            <button class="btn btn-primary" onclick="switchView('games')">Browse games</button>
+            <button class="btn btn-ghost" onclick="switchView('leaderboard')">View leaderboard</button>
+          </div>
+          <div class="hero-note"><span class="dot"></span> Free to play · Virtual rewards only · No purchases required</div>
+        </div>
+
+        <div class="hud">
+          <div class="hud-top">
+            <div>
+              <div class="hud-label">PLAYER CARD</div>
+              <div style="font-family:var(--font-display);font-weight:700;font-size:17px;margin-top:4px;" id="hud-username">Player</div>
+            </div>
+            <div class="hud-avatar" id="hud-avatar">🎮</div>
+          </div>
+          <div class="hud-stat-row">
+            <span class="val" id="hud-level-val">Lv. 1</span>
+            <small id="hud-xp-text">0 / 100 XP</small>
+          </div>
+          <div class="xp-track"><div class="xp-fill" id="hud-xp-fill" style="width:0%"></div></div>
+          <div class="hud-grid">
+            <div class="hud-chip"><div class="num" id="hud-coins">500</div><div class="lab">Coins</div></div>
+            <div class="hud-chip"><div class="num" id="hud-wins">0</div><div class="lab">Wins</div></div>
+            <div class="hud-chip"><div class="num" id="hud-rank">—</div><div class="lab">Rank</div></div>
+            <div class="hud-chip"><div class="num" id="hud-badges">0 / 8</div><div class="lab">Badges</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-strip">
+        <div class="stat-cell"><div class="n">5</div><div class="l">Skill-based mini games</div></div>
+        <div class="stat-cell"><div class="n">0</div><div class="l">Real-money features</div></div>
+        <div class="stat-cell"><div class="n" id="strip-players">1,248</div><div class="l">Players on leaderboard</div></div>
+        <div class="stat-cell"><div class="n">24/7</div><div class="l">Free to play</div></div>
+      </div>
+
+      <div class="section-head">
+        <span class="kicker">FEATURED GAMES</span>
+        <h2>Jump back into the arena</h2>
+        <p>Every match pays out virtual coins and XP based on how well you play.</p>
+      </div>
+      <div class="game-grid" id="home-game-grid"></div>
+    </div>
+  </section>
+
+  <!-- ================= GAMES ================= -->
+  <section class="view hidden" id="view-games">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">GAME LIBRARY</span>
+        <h2>Choose your challenge</h2>
+        <p>Five skill-based mini games. Win to earn more coins and XP — everything here is virtual, nothing is cash.</p>
+      </div>
+      <div class="game-grid" id="games-grid-full"></div>
+    </div>
+  </section>
+
+  <!-- ================= LEADERBOARD ================= -->
+  <section class="view hidden" id="view-leaderboard">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">RANKINGS</span>
+        <h2>Leaderboard</h2>
+        <p>Ranked by total score earned across all games. Score is virtual and carries no cash value.</p>
+      </div>
+      <div class="lb-controls">
+        <button class="chip-toggle active" data-lb="all">All-time</button>
+        <button class="chip-toggle" data-lb="week">This week</button>
+      </div>
+      <div class="lb-list" id="lb-list"></div>
+    </div>
+  </section>
+
+  <!-- ================= REWARDS ================= -->
+  <section class="view hidden" id="view-rewards">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">REWARDS CENTER</span>
+        <h2>Daily rewards &amp; achievements</h2>
+        <p>Log in daily for virtual coin bonuses and unlock badges as you play.</p>
+      </div>
+
+      <div class="rewards-grid">
+        <div class="streak-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h3 style="font-size:17px;">Daily login streak</h3>
+            <span class="tag" style="color:var(--gold);border-color:rgba(255,207,77,.35);">Day <span id="streak-day-num">1</span></span>
+          </div>
+          <div class="streak-days" id="streak-days"></div>
+          <button class="btn btn-gold btn-block" id="rewards-claim-btn" style="margin-top:14px;">Claim today's reward</button>
+        </div>
+
+        <div class="streak-card">
+          <h3 style="font-size:17px;margin-bottom:12px;">Reward rules</h3>
+          <p style="color:var(--text-dim);font-size:13.8px;line-height:1.7;">
+            • Claim one virtual reward every calendar day.<br>
+            • Rewards grow the longer your streak runs.<br>
+            • Coins &amp; XP are for in-app progress only.<br>
+            • No purchase is ever required to earn rewards.
+          </p>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <span class="kicker">BADGES</span>
+        <h2>Achievements</h2>
+      </div>
+      <div class="ach-grid" id="ach-grid"></div>
+    </div>
+  </section>
+
+  <!-- ================= PROFILE ================= -->
+  <section class="view hidden" id="view-profile">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">YOUR ACCOUNT</span>
+        <h2>Profile</h2>
+        <p>Your stats, avatar and match history. All progress shown here resets when you start a new session.</p>
+      </div>
+
+      <div class="profile-grid">
+        <div class="profile-card">
+          <div class="big-avatar" id="profile-big-avatar">🎮</div>
+          <label class="field-label">Display name</label>
+          <input class="text-input" id="username-input" maxlength="18" value="Player">
+          <label class="field-label">Choose avatar</label>
+          <div class="avatar-picker" id="avatar-picker"></div>
+
+          <div class="profile-stats-grid">
+            <div class="pstat"><div class="num" id="pstat-level">1</div><div class="lab">Level</div></div>
+            <div class="pstat"><div class="num" id="pstat-games">0</div><div class="lab">Games played</div></div>
+            <div class="pstat"><div class="num" id="pstat-winrate">0%</div><div class="lab">Win rate</div></div>
+          </div>
+        </div>
+
+        <div class="profile-card">
+          <h3 style="font-size:17px;margin-bottom:4px;">Match history</h3>
+          <p style="color:var(--text-faint);font-size:12.5px;">Most recent games this session</p>
+          <div class="history-list" id="history-list">
+            <div class="empty-note">No games played yet — head to the Games tab to get started.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-legal-notice">
+      <b>Virtual Coins — No Cash Value.</b> Koushal Games is a free skill-based entertainment platform. Coins, XP, badges and leaderboard rank are virtual, have no real-world monetary value, cannot be purchased, exchanged, redeemed or withdrawn for cash, and are not a form of gambling or betting.
+    </div>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand" style="margin-bottom:2px;">
+          <div class="brand-mark" style="width:28px;height:28px;font-size:12px;">KG</div>
+          <div class="brand-name" style="font-size:16px;">KOUSHAL <span>GAMES</span></div>
+        </div>
+        <p>A free arena of skill-based mini games. Play, earn virtual rewards, and climb the leaderboard.</p>
+      </div>
+      <div class="footer-col">
+        <h4>PLAY</h4>
+        <ul>
+          <li><button onclick="switchView('games')">All games</button></li>
+          <li><button onclick="switchView('leaderboard')">Leaderboard</button></li>
+          <li><button onclick="switchView('rewards')">Daily rewards</button></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>ACCOUNT</h4>
+        <ul>
+          <li><button onclick="switchView('profile')">Profile</button></li>
+          <li><button onclick="switchView('profile')">Game history</button></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>LEGAL</h4>
+        <ul>
+          <li><button onclick="openLegal('terms')">Terms of use</button></li>
+          <li><button onclick="openLegal('privacy')">Privacy policy</button></li>
+          <li><button onclick="openLegal('responsible')">Responsible gaming</button></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Koushal Games. All rewards are virtual and hold no cash value.</span>
+      <span>Made for fun, not for wagering.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= GAME MODAL ================= -->
+<div class="modal-overlay" id="game-modal-overlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3><span id="game-modal-icon">🎮</span> <span id="game-modal-title">Game</span></h3>
+      <button class="modal-close" onclick="closeGameModal()">✕</button>
+    </div>
+    <div class="modal-body" id="game-modal-body"></div>
+  </div>
+</div>
+
+<!-- ================= LEGAL MODAL ================= -->
+<div class="modal-overlay" id="legal-modal-overlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="legal-modal-title">Terms of use</h3>
+      <button class="modal-close" onclick="closeLegalModal()">✕</button>
+    </div>
+    <div class="modal-body legal-text" id="legal-modal-body"></div>
+  </div>
+</div>
+
+<!-- ================= DAILY REWARD POPUP ================= -->
+<div class="modal-overlay reward-popup" id="daily-reward-overlay">
+  <div class="modal-box">
+    <div class="modal-body">
+      <div class="reward-chest">🎁</div>
+      <h3>Daily reward ready!</h3>
+      <p class="sub">Come back tomorrow to keep your streak alive.</p>
+      <div class="reward-amount" id="daily-reward-amount">+50 coins</div>
+      <p class="sub" style="margin-bottom:20px;">+10 XP · Virtual reward, no cash value</p>
+      <button class="btn btn-gold btn-block" id="daily-claim-btn">Claim reward</button>
+      <button class="btn btn-ghost btn-block" style="margin-top:10px;" onclick="closeDailyReward()">Maybe later</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-stack"></div>
+
+
+<script id="auth-system-js">
+(function(){
+ const KEY='koushal_games_accounts_v1';
+ let mode='login';
+ const $=id=>document.getElementById(id);
+ function accounts(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return {}}}
+ function save(a){localStorage.setItem(KEY,JSON.stringify(a))}
+ function show(modeNew){mode=modeNew; $('login-tab').classList.toggle('active',mode==='login'); $('signup-tab').classList.toggle('active',mode==='signup'); $('auth-submit').textContent=mode==='login'?'Login':'Create Account'; $('auth-msg').textContent=''; $('auth-pass').value='';}
+ $('login-tab').onclick=()=>show('login'); $('signup-tab').onclick=()=>show('signup');
+ $('auth-submit').onclick=()=>{
+   const u=$('auth-user').value.trim(), pw=$('auth-pass').value; const msg=$('auth-msg');
+   if(!u){msg.textContent='Please enter a username.';return;}
+   if(pw.length<6){msg.textContent='Password must be at least 6 characters.';return;}
+   const a=accounts();
+   if(mode==='signup'){
+     if(a[u]){msg.textContent='That username already exists. Try Login.';return;}
+     a[u]={password:pw, createdAt:Date.now(), state:{username:u,avatar:'🎮',coins:500,xp:0,level:1}}; save(a); localStorage.setItem('koushal_current_user',u);
+   }else{
+     if(!a[u] || a[u].password!==pw){msg.textContent='Username or password is incorrect.';return;}
+     localStorage.setItem('koushal_current_user',u);
+   }
+   location.reload();
+ };
+ window.koushalAuth={
+   current:()=>localStorage.getItem('koushal_current_user'),
+   logout:()=>{localStorage.removeItem('koushal_current_user');location.reload();},
+   accountsKey:KEY
+ };
+ const current=localStorage.getItem('koushal_current_user');
+ if(current){ $('auth-overlay').classList.add('auth-hidden'); try{
+   const a=accounts(); const saved=a[current]?.state;
+   if(saved && window.state){Object.assign(window.state,saved);}
+ }catch(e){}}
+ // patch updateAllUI after page scripts initialize; keep account state synced periodically
+ setInterval(()=>{
+   const u=localStorage.getItem('koushal_current_user'); if(!u || !window.state)return;
+   const a=accounts(); if(!a[u])return;
+   a[u].state={username:window.state.username||u,avatar:window.state.avatar||'🎮',coins:Number(window.state.coins)||0,xp:Number(window.state.xp)||0,level:Number(window.state.level)||1}; save(a);
+ },1000);
+ window.addEventListener('DOMContentLoaded',()=>{
+   if(!localStorage.getItem('koushal_current_user')) return;
+   const nav=document.querySelector('nav'); if(nav && !document.getElementById('logout-btn')){const b=document.createElement('button');b.id='logout-btn';b.textContent='Logout';b.className='nav-btn';b.style.cssText='margin-left:8px;';b.onclick=()=>window.koushalAuth.logout();nav.appendChild(b);}
+ });
+})();
+</script>
+
+<script>
+/* ============================================================
+   KOUSHAL GAMES — application state (in-memory only)
+   ============================================================ */
+const GAMES = [
+  { id:'ttt', name:'Tic-Tac-Toe', icon:'⭕', desc:'Outsmart the computer on the classic 3x3 grid.', diff:'easy', reward:'20–60 coins' },
+  { id:'memory', name:'Memory Match', icon:'🧠', desc:'Flip cards and clear the board in as few moves as possible.', diff:'medium', reward:'20–120 coins' },
+  { id:'guess', name:'Number Guess', icon:'🔢', desc:'Find the secret number 1–100 using hot-and-cold hints.', diff:'easy', reward:'15–80 coins' },
+  { id:'reaction', name:'Reaction Speed', icon:'⚡', desc:'Click the instant it turns green. Milliseconds matter.', diff:'medium', reward:'10–90 coins' },
+  { id:'rps', name:'Rock Paper Scissors', icon:'✊', desc:'Best of 5 rounds against the house AI.', diff:'easy', reward:'15–70 coins' },
+];
+
+const AVATARS = ['🎮','🧑‍🚀','🦊','🐼','🐯','🤖','🥷','👾','🐉','🦁'];
+
+const ACHIEVEMENTS = [
+  { id:'first_game', icon:'🎯', title:'First Steps', desc:'Play your first game', reward:'+20 coins', check: s => s.gamesPlayed >= 1 },
+  { id:'first_win',  icon:'🏆', title:'First Victory', desc:'Win any game', reward:'+30 coins', check: s => s.wins >= 1 },
+  { id:'level_up',   icon:'⭐', title:'Rising Star', desc:'Reach Level 3', reward:'+50 coins', check: s => s.level >= 3 },
+  { id:'streak3',    icon:'🔥', title:'On a Roll', desc:'Win 3 games in a row', reward:'+60 coins', check: s => s.bestStreak >= 3 },
+  { id:'ttt_win',    icon:'⭕', title:'Grid Master', desc:'Win a Tic-Tac-Toe match', reward:'+25 coins', check: s => s.gameWins.ttt >= 1 },
+  { id:'memory_pro', icon:'🧠', title:'Sharp Mind', desc:'Clear Memory Match in 14 moves or fewer', reward:'+40 coins', check: s => s.bestMemoryMoves !== null && s.bestMemoryMoves <= 14 },
+  { id:'quick_draw', icon:'⚡', title:'Quick Draw', desc:'React in under 300ms', reward:'+35 coins', check: s => s.bestReaction !== null && s.bestReaction < 300 },
+  { id:'collector',  icon:'💰', title:'Coin Collector', desc:'Earn 1,000 total coins', reward:'+50 coins', check: s => s.totalCoinsEarned >= 1000 },
+];
+
+const BOT_PLAYERS = [
+  { name:'Arjun_Prime', avatar:'🦁', points:2840 },
+  { name:'Nyx.exe', avatar:'👾', points:2615 },
+  { name:'Kavya_R', avatar:'🐼', points:2390 },
+  { name:'ShadowByte', avatar:'🥷', points:2110 },
+  { name:'PixelRani', avatar:'🐯', points:1875 },
+  { name:'Rohan_GG', avatar:'🤖', points:1590 },
+  { name:'Zara_K', avatar:'🐉', points:1240 },
+  { name:'Vikram.io', avatar:'🧑‍🚀', points:940 },
+  { name:'Meera_X', avatar:'🦊', points:610 },
+];
+
+const state = {
+  username:'Player',
+  avatar:'🎮',
+  coins:500,
+  xp:0,
+  level:1,
+  soundOn:true,
+  gamesPlayed:0,
+  wins:0,
+  losses:0,
+  draws:0,
+  streak:0,
+  bestStreak:0,
+  totalCoinsEarned:500,
+  gameWins:{ ttt:0, memory:0, guess:0, reaction:0, rps:0 },
+  bestMemoryMoves:null,
+  bestReaction:null,
+  history:[],
+  unlocked:{},
+  dailyClaimed:false,
+  dailyDay:1,
+};
+
+function xpForLevel(l){ return l*100; }
+
+/* ============================================================
+   AUDIO — lightweight WebAudio beeps, no external files
+   ============================================================ */
+let audioCtx=null;
+function ensureAudio(){ if(!audioCtx){ try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } }
+function beep(freq=440, dur=0.09, type='sine', vol=0.06){
+  if(!state.soundOn) return;
+  ensureAudio();
+  if(!audioCtx) return;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.value = vol;
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start();
+  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+  o.stop(audioCtx.currentTime + dur + 0.02);
+}
+const sfx = {
+  click: () => beep(520,0.05,'square',0.04),
+  win: () => { beep(660,0.1,'triangle',0.07); setTimeout(()=>beep(880,0.14,'triangle',0.07),90); },
+  lose: () => beep(180,0.22,'sawtooth',0.05),
+  draw: () => beep(340,0.14,'sine',0.05),
+  coin: () => beep(980,0.07,'square',0.05),
+  levelup: () => { beep(520,0.1,'triangle',0.08); setTimeout(()=>beep(780,0.12,'triangle',0.08),100); setTimeout(()=>beep(1040,0.16,'triangle',0.08),210); },
+  achievement: () => { beep(600,0.08,'triangle',0.07); setTimeout(()=>beep(900,0.14,'triangle',0.07),90); },
+};
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+function switchView(view){
+  document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+  document.getElementById('view-'+view).classList.remove('hidden');
+  document.querySelectorAll('#primary-nav button, #mobile-nav button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view === view);
+  });
+  document.getElementById('mobile-nav').classList.remove('open');
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(view==='leaderboard') renderLeaderboard();
+}
+document.querySelectorAll('#primary-nav button, #mobile-nav button').forEach(b=>{
+  b.addEventListener('click', ()=>{ sfx.click(); switchView(b.dataset.view); });
+});
+document.getElementById('hamburger-btn').addEventListener('click', ()=>{
+  document.getElementById('mobile-nav').classList.toggle('open');
+});
+
+/* ============================================================
+   RENDER: game cards
+   ============================================================ */
+function gameCardHTML(g){
+  return `<div class="game-card">
+    <div class="icon">${g.icon}</div>
+    <h3>${g.name}</h3>
+    <p>${g.desc}</p>
+    <div class="reward-hint">Earn ${g.reward}</div>
+    <div class="meta-row">
+      <span class="tag ${g.diff}">${g.diff}</span>
+      <button class="btn btn-primary btn-sm" onclick="openGame('${g.id}')">Play</button>
+    </div>
+  </div>`;
+}
+function renderGameGrids(){
+  document.getElementById('home-game-grid').innerHTML = GAMES.slice(0,3).map(gameCardHTML).join('');
+  document.getElementById('games-grid-full').innerHTML = GAMES.map(gameCardHTML).join('');
+}
+
+/* ============================================================
+   RENDER: HUD / profile / stats
+   ============================================================ */
+function updateAllUI(){
+  const needed = xpForLevel(state.level);
+  const pct = Math.min(100, Math.round((state.xp/needed)*100));
+
+  document.getElementById('coin-display').textContent = state.coins.toLocaleString();
+  document.getElementById('hud-coins').textContent = state.coins.toLocaleString();
+  document.getElementById('hud-username').textContent = state.username;
+  document.getElementById('hud-avatar').textContent = state.avatar;
+  document.getElementById('nav-avatar').textContent = state.avatar;
+  document.getElementById('hud-level-val').innerHTML = `Lv. ${state.level}`;
+  document.getElementById('hud-xp-text').textContent = `${state.xp} / ${needed} XP`;
+  document.getElementById('hud-xp-fill').style.width = pct+'%';
+  document.getElementById('hud-wins').textContent = state.wins;
+  const unlockedCount = Object.values(state.unlocked).filter(Boolean).length;
+  document.getElementById('hud-badges').textContent = `${unlockedCount} / ${ACHIEVEMENTS.length}`;
+
+  const myPoints = totalScore();
+  const rank = BOT_PLAYERS.filter(b=>b.points>myPoints).length + 1;
+  document.getElementById('hud-rank').textContent = '#'+rank;
+
+  document.getElementById('profile-big-avatar').textContent = state.avatar;
+  document.getElementById('pstat-level').textContent = state.level;
+  document.getElementById('pstat-games').textContent = state.gamesPlayed;
+  const wr = state.gamesPlayed ? Math.round((state.wins/state.gamesPlayed)*100) : 0;
+  document.getElementById('pstat-winrate').textContent = wr+'%';
+
+  document.getElementById('sound-icon').parentElement.classList.toggle('on', state.soundOn);
+
+  renderHistory();
+  renderAchievements();
+  renderStreak();
+}
+
+function totalScore(){ return state.xp + (state.level-1)*100; }
+
+/* ---------------- avatar picker ---------------- */
+function renderAvatarPicker(){
+  const el = document.getElementById('avatar-picker');
+  el.innerHTML = AVATARS.map(a => `<button type="button" class="avatar-opt ${a===state.avatar?'selected':''}" data-a="${a}">${a}</button>`).join('');
+  el.querySelectorAll('.avatar-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      state.avatar = btn.dataset.a;
+      sfx.click();
+      renderAvatarPicker();
+      updateAllUI();
+    });
+  });
+}
+document.getElementById('username-input').addEventListener('input', (e)=>{
+  state.username = e.target.value.trim() || 'Player';
+  updateAllUI();
+});
+
+/* ---------------- history ---------------- */
+function renderHistory(){
+  const el = document.getElementById('history-list');
+  if(state.history.length===0){
+    el.innerHTML = `<div class="empty-note">No games played yet — head to the Games tab to get started.</div>`;
+    return;
+  }
+  el.innerHTML = state.history.slice(0,12).map(h=>{
+    const g = GAMES.find(x=>x.id===h.gameId);
+    return `<div class="history-row">
+      <div class="history-ico">${g?g.icon:'🎮'}</div>
+      <div class="history-main">
+        <div class="history-title">${g?g.name:h.gameId}</div>
+        <div class="history-time">${h.time}</div>
+      </div>
+      <span class="history-result ${h.result}">${h.result.toUpperCase()}</span>
+      <span class="history-coins">+${h.coins} 🪙</span>
+    </div>`;
+  }).join('');
+}
+
+/* ---------------- achievements ---------------- */
+function renderAchievements(){
+  const el = document.getElementById('ach-grid');
+  el.innerHTML = ACHIEVEMENTS.map(a=>{
+    const unlocked = !!state.unlocked[a.id];
+    return `<div class="ach-card ${unlocked?'unlocked':''}">
+      <div class="ach-ico">${a.icon}</div>
+      <div>
+        <div class="ach-title">${a.title}</div>
+        <div class="ach-desc">${a.desc}</div>
+        <div class="ach-reward">${unlocked?'Unlocked · ':''}${a.reward}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function checkAchievements(){
+  ACHIEVEMENTS.forEach(a=>{
+    if(!state.unlocked[a.id] && a.check(state)){
+      state.unlocked[a.id] = true;
+      const bonus = parseInt(a.reward.replace(/[^0-9]/g,'')) || 0;
+      awardCoins(bonus, false);
+      showToast('ach', a.icon, `Achievement unlocked: ${a.title}`, a.reward);
+      sfx.achievement();
+    }
+  });
+}
+
+/* ---------------- streak / daily reward ---------------- */
+function renderStreak(){
+  document.getElementById('streak-day-num').textContent = state.dailyDay;
+  const el = document.getElementById('streak-days');
+  let html='';
+  for(let i=1;i<=7;i++){
+    const done = i < state.dailyDay || (i===state.dailyDay && state.dailyClaimed);
+    const today = i===state.dailyDay;
+    const coinAmt = 30 + (i-1)*15;
+    html += `<div class="streak-day ${done?'done':''} ${today?'today':''}">
+      <span>Day ${i}</span><span class="c">${done?'✓':coinAmt}</span>
+    </div>`;
+  }
+  el.innerHTML = html;
+  const btn = document.getElementById('rewards-claim-btn');
+  btn.disabled = state.dailyClaimed;
+  btn.textContent = state.dailyClaimed ? "Reward claimed — come back tomorrow" : "Claim today's reward";
+}
+function dailyRewardAmount(){ return 30 + (state.dailyDay-1)*15; }
+function claimDaily(){
+  if(state.dailyClaimed) return;
+  const coins = dailyRewardAmount();
+  awardCoins(coins, false);
+  awardXP(10);
+  state.dailyClaimed = true;
+  sfx.coin();
+  updateAllUI();
+  showToast('reward','🎁', 'Daily reward claimed', `+${coins} coins · +10 XP`);
+}
+document.getElementById('rewards-claim-btn').addEventListener('click', claimDaily);
+document.getElementById('daily-claim-btn').addEventListener('click', ()=>{
+  claimDaily();
+  closeDailyReward();
+});
+function openDailyReward(){
+  document.getElementById('daily-reward-amount').textContent = `+${dailyRewardAmount()} coins`;
+  document.getElementById('daily-reward-overlay').classList.add('open');
+}
+function closeDailyReward(){ document.getElementById('daily-reward-overlay').classList.remove('open'); }
+
+/* ============================================================
+   LEADERBOARD
+   ============================================================ */
+function renderLeaderboard(){
+  const el = document.getElementById('lb-list');
+  const me = { name: state.username+' (You)', avatar: state.avatar, points: totalScore(), isMe:true };
+  const all = [...BOT_PLAYERS.map(b=>({...b,isMe:false})), me].sort((a,b)=>b.points-a.points);
+  el.innerHTML = all.map((p,i)=>`
+    <div class="lb-row ${p.isMe?'me':''}" style="animation-delay:${i*0.04}s">
+      <div class="lb-rank">${i+1}</div>
+      <div class="lb-avatar">${p.avatar}</div>
+      <div>
+        <div class="lb-name">${p.name}${p.isMe?'<span class="you-badge">YOU</span>':''}</div>
+        <div class="lb-sub">Skill score</div>
+      </div>
+      <div class="lb-points">${p.points.toLocaleString()}</div>
+    </div>
+  `).join('');
+}
+document.querySelectorAll('.chip-toggle').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.chip-toggle').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderLeaderboard();
+  });
+});
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+function showToast(kind, icon, title, sub){
+  const stack = document.getElementById('toast-stack');
+  const t = document.createElement('div');
+  t.className = 'toast '+(kind==='level'?'level':kind==='ach'?'ach':'');
+  t.innerHTML = `<span class="t-ico">${icon}</span><span><b>${title}</b>${sub||''}</span>`;
+  stack.appendChild(t);
+  setTimeout(()=>{ t.classList.add('leaving'); setTimeout(()=>t.remove(), 250); }, 3400);
+}
+
+/* ============================================================
+   REWARD ENGINE (coins / xp / level up)
+   ============================================================ */
+function awardCoins(amount, playSound=true){
+  state.coins += amount;
+  state.totalCoinsEarned += Math.max(0,amount);
+  if(playSound) sfx.coin();
+}
+function awardXP(amount){
+  state.xp += amount;
+  let leveled = false;
+  while(state.xp >= xpForLevel(state.level)){
+    state.xp -= xpForLevel(state.level);
+    state.level += 1;
+    leveled = true;
+  }
+  if(leveled){
+    sfx.levelup();
+    showToast('level','⭐', `Level up! You reached Level ${state.level}`, 'Keep playing to climb higher');
+  }
+}
+function recordHistory(gameId, result, coins){
+  state.history.unshift({
+    gameId, result, coins,
+    time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+  });
+}
+function finishGame(gameId, result, coins, xp){
+  state.gamesPlayed += 1;
+  if(result==='win'){ state.wins+=1; state.streak+=1; state.bestStreak=Math.max(state.bestStreak,state.streak); state.gameWins[gameId]+=1; }
+  else if(result==='loss'){ state.losses+=1; state.streak=0; }
+  else { state.draws+=1; state.streak=0; }
+  awardCoins(coins);
+  awardXP(xp);
+  recordHistory(gameId, result, coins);
+  checkAchievements();
+  updateAllUI();
+}
+
+/* ============================================================
+   GAME MODAL SHELL
+   ============================================================ */
+function openGame(id){
+  const g = GAMES.find(x=>x.id===id);
+  document.getElementById('game-modal-icon').textContent = g.icon;
+  document.getElementById('game-modal-title').textContent = g.name;
+  document.getElementById('game-modal-body').innerHTML = '';
+  document.getElementById('game-modal-overlay').classList.add('open');
+  sfx.click();
+  GAME_INIT[id]();
+}
+function closeGameModal(){
+  document.getElementById('game-modal-overlay').classList.remove('open');
+}
+document.getElementById('game-modal-overlay').addEventListener('click', (e)=>{
+  if(e.target.id==='game-modal-overlay') closeGameModal();
+});
+
+function resultBannerHTML(result, coins, xp){
+  const label = result==='win' ? 'Victory!' : result==='loss' ? 'Better luck next time' : "It's a draw";
+  return `<div class="game-result-banner show ${result}">
+    <div class="title">${label}</div>
+    <div class="rewards">+${coins} coins · +${xp} XP earned</div>
+    <div class="game-result-actions">
+      <button class="btn btn-primary btn-sm" onclick="closeGameModal()">Done</button>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   GAME 1 — TIC TAC TOE
+   ============================================================ */
+function initTTT(){
+  const body = document.getElementById('game-modal-body');
+  let board = Array(9).fill(null);
+  let over = false;
+  body.innerHTML = `
+    <div class="game-status-row"><span class="status-txt">You are <span class="status-val">X</span> · Computer is O</span></div>
+    <div class="ttt-board" id="ttt-board"></div>
+    <div id="ttt-result"></div>
+  `;
+  const boardEl = document.getElementById('ttt-board');
+  function render(){
+    boardEl.innerHTML = board.map((v,i)=>`<div class="ttt-cell ${v?'filled':''} ${v==='O'?'o':''}" data-i="${i}">${v||''}</div>`).join('');
+    boardEl.querySelectorAll('.ttt-cell').forEach(c=>{
+      c.addEventListener('click', ()=>handleClick(parseInt(c.dataset.i)));
+    });
+  }
+  const LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  function winner(b){
+    for(const [a,b1,c] of LINES){ if(b[a] && b[a]===b[b1] && b[a]===b[c]) return b[a]; }
+    return b.every(x=>x) ? 'draw' : null;
+  }
+  function computerMove(){
+    // try win
+    for(const i of empties(board)){ const t=[...board]; t[i]='O'; if(winner(t)==='O') return i; }
+    // block
+    for(const i of empties(board)){ const t=[...board]; t[i]='X'; if(winner(t)==='X') return i; }
+    if(board[4]===null) return 4;
+    const corners=[0,2,6,8].filter(i=>board[i]===null);
+    if(corners.length) return corners[Math.floor(Math.random()*corners.length)];
+    const e = empties(board);
+    return e[Math.floor(Math.random()*e.length)];
+  }
+  function empties(b){ return b.map((v,i)=>v?null:i).filter(v=>v!==null); }
+  function handleClick(i){
+    if(over || board[i]) return;
+    board[i]='X'; sfx.click(); render();
+    let w = winner(board);
+    if(w){ endTTT(w); return; }
+    setTimeout(()=>{
+      const mi = computerMove();
+      board[mi]='O'; render();
+      w = winner(board);
+      if(w) endTTT(w);
+    }, 380);
+  }
+  function endTTT(w){
+    over = true;
+    let result, coins, xp;
+    if(w==='X'){ result='win'; coins=60; xp=30; sfx.win(); }
+    else if(w==='draw'){ result='draw'; coins=20; xp=10; sfx.draw(); }
+    else { result='loss'; coins=10; xp=5; sfx.lose(); }
+    document.getElementById('ttt-result').innerHTML = resultBannerHTML(result, coins, xp);
+    finishGame('ttt', result, coins, xp);
+  }
+  render();
+}
+
+/* ============================================================
+   GAME 2 — MEMORY MATCH
+   ============================================================ */
+function initMemory(){
+  const body = document.getElementById('game-modal-body');
+  const icons = ['🍀','🔥','💎','🌙','⚡','🎯','🍎','🚀'];
+  let deck = [...icons, ...icons].sort(()=>Math.random()-0.5);
+  let flipped = [];
+  let matched = new Set();
+  let moves = 0;
+  let lock = false;
+  body.innerHTML = `
+    <div class="game-status-row">
+      <span class="status-txt">Moves: <span class="status-val" id="mem-moves">0</span></span>
+      <span class="status-txt">Pairs: <span class="status-val" id="mem-pairs">0</span> / 8</span>
+    </div>
+    <div class="mem-board" id="mem-board"></div>
+    <div id="mem-result"></div>
+  `;
+  const boardEl = document.getElementById('mem-board');
+  function render(){
+    boardEl.innerHTML = deck.map((val,i)=>`
+      <div class="mem-card ${flipped.includes(i)?'flipped':''} ${matched.has(i)?'matched':''}" data-i="${i}">
+        <div class="mem-card-inner">
+          <div class="mem-face front">?</div>
+          <div class="mem-face back">${val}</div>
+        </div>
+      </div>`).join('');
+    boardEl.querySelectorAll('.mem-card').forEach(c=>{
+      c.addEventListener('click', ()=>handleFlip(parseInt(c.dataset.i)));
+    });
+  }
+  function handleFlip(i){
+    if(lock || flipped.includes(i) || matched.has(i)) return;
+    sfx.click();
+    flipped.push(i);
+    render();
+    if(flipped.length===2){
+      moves++;
+      document.getElementById('mem-moves').textContent = moves;
+      lock = true;
+      const [a,b] = flipped;
+      if(deck[a]===deck[b]){
+        matched.add(a); matched.add(b);
+        flipped = [];
+        lock = false;
+        document.getElementById('mem-pairs').textContent = matched.size/2;
+        render();
+        if(matched.size===deck.length) endMemory(moves);
+      } else {
+        setTimeout(()=>{ flipped=[]; lock=false; render(); }, 700);
+      }
+    }
+  }
+  function endMemory(finalMoves){
+    const coins = Math.max(20, 130 - finalMoves*4);
+    const xp = Math.max(10, 60 - finalMoves*2);
+    if(state.bestMemoryMoves===null || finalMoves < state.bestMemoryMoves) state.bestMemoryMoves = finalMoves;
+    sfx.win();
+    document.getElementById('mem-result').innerHTML = resultBannerHTML('win', coins, xp);
+    finishGame('memory','win', coins, xp);
+  }
+  render();
+}
+
+/* ============================================================
+   GAME 3 — NUMBER GUESS
+   ============================================================ */
+function initGuess(){
+  const body = document.getElementById('game-modal-body');
+  const target = Math.floor(Math.random()*100)+1;
+  const maxAttempts = 7;
+  let attempts = 0;
+  let guesses = [];
+  let over = false;
+  body.innerHTML = `
+    <div class="game-status-row">
+      <span class="status-txt">Attempts left: <span class="status-val" id="ng-left">${maxAttempts}</span></span>
+    </div>
+    <p style="text-align:center;color:var(--text-dim);font-size:13.5px;margin-bottom:14px;">Guess the secret number between 1 and 100.</p>
+    <div class="ng-input-row">
+      <input type="number" min="1" max="100" id="ng-input" class="text-input" placeholder="Your guess">
+      <button class="btn btn-primary" id="ng-submit">Guess</button>
+    </div>
+    <div class="ng-hint" id="ng-hint">Make your first guess!</div>
+    <div class="ng-history" id="ng-history"></div>
+    <div id="ng-result"></div>
+  `;
+  const input = document.getElementById('ng-input');
+  const hint = document.getElementById('ng-hint');
+  const histEl = document.getElementById('ng-history');
+  function submit(){
+    if(over) return;
+    const val = parseInt(input.value);
+    if(isNaN(val) || val<1 || val>100) return;
+    attempts++;
+    sfx.click();
+    document.getElementById('ng-left').textContent = maxAttempts - attempts;
+    guesses.push(val);
+    histEl.innerHTML = guesses.map(g=>`<span class="ng-chip">${g}</span>`).join('');
+    if(val===target){
+      end(true, attempts);
+      return;
+    }
+    const diff = Math.abs(val-target);
+    let msg = val < target ? '📈 Too low' : '📉 Too high';
+    if(diff <= 3) msg += ' — very close!'; else if(diff<=10) msg += ' — getting warm';
+    hint.textContent = msg;
+    if(attempts>=maxAttempts) end(false, attempts);
+    input.value=''; input.focus();
+  }
+  document.getElementById('ng-submit').addEventListener('click', submit);
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') submit(); });
+  function end(won, usedAttempts){
+    over = true;
+    input.disabled = true; document.getElementById('ng-submit').disabled = true;
+    let result, coins, xp;
+    if(won){
+      result='win';
+      coins = Math.max(20, 90 - usedAttempts*10);
+      xp = Math.max(10, 40 - usedAttempts*4);
+      hint.textContent = `🎯 Correct! The number was ${target}.`;
+      sfx.win();
+    } else {
+      result='loss'; coins=15; xp=8;
+      hint.textContent = `Out of attempts. The number was ${target}.`;
+      sfx.lose();
+    }
+    document.getElementById('ng-result').innerHTML = resultBannerHTML(result, coins, xp);
+    finishGame('guess', result, coins, xp);
+  }
+}
+
+/* ============================================================
+   GAME 4 — REACTION SPEED
+   ============================================================ */
+function initReaction(){
+  const body = document.getElementById('game-modal-body');
+  body.innerHTML = `
+    <p style="text-align:center;color:var(--text-dim);font-size:13.5px;margin-bottom:14px;">Wait for green, then click as fast as you can. Click early and you'll have to restart.</p>
+    <div class="rx-pad wait" id="rx-pad">Get ready…</div>
+    <div id="rx-result"></div>
+  `;
+  const pad = document.getElementById('rx-pad');
+  let state_ = 'idle'; // idle -> waiting -> go -> done
+  let timeout, startTime;
+
+  function start(){
+    state_ = 'waiting';
+    pad.className='rx-pad wait';
+    pad.textContent='Wait for green…';
+    const delay = 1200 + Math.random()*2200;
+    timeout = setTimeout(()=>{
+      state_='go';
+      startTime = performance.now();
+      pad.className='rx-pad go';
+      pad.textContent='CLICK NOW!';
+      beep(700,0.05,'square',0.05);
+    }, delay);
+  }
+  pad.addEventListener('click', ()=>{
+    if(state_==='idle'){ start(); return; }
+    if(state_==='waiting'){
+      clearTimeout(timeout);
+      state_='early';
+      pad.className='rx-pad early';
+      pad.textContent='Too soon! Click to retry.';
+      sfx.lose();
+      state_='idle';
+      pad.onclick=null;
+      pad.addEventListener('click', restartOnce, {once:true});
+      return;
+    }
+    if(state_==='go'){
+      const rt = Math.round(performance.now()-startTime);
+      end(rt);
+    }
+  });
+  function restartOnce(){ start(); }
+  function end(rt){
+    state_='done';
+    pad.className='rx-pad';
+    pad.textContent = `${rt} ms`;
+    if(state.bestReaction===null || rt < state.bestReaction) state.bestReaction = rt;
+    const coins = Math.max(10, Math.round(100 - rt/6));
+    const xp = Math.max(5, Math.round(40 - rt/12));
+    sfx.win();
+    document.getElementById('rx-result').innerHTML = resultBannerHTML('win', coins, xp) + `<p style="text-align:center;color:var(--text-faint);font-size:12.5px;margin-top:8px;">Reaction time: ${rt}ms</p>`;
+    finishGame('reaction','win', coins, xp);
+  }
+  start();
+}
+
+/* ============================================================
+   GAME 5 — ROCK PAPER SCISSORS
+   ============================================================ */
+function initRPS(){
+  const body = document.getElementById('game-modal-body');
+  const CHOICES = { rock:'🪨', paper:'📄', scissors:'✂️' };
+  let userScore=0, cpuScore=0, round=0;
+  const maxRounds=5;
+  body.innerHTML = `
+    <div class="rps-score">Round <span id="rps-round">1</span> of ${maxRounds} · You <b id="rps-uscore">0</b> — <b id="rps-cscore">0</b> Computer</div>
+    <div class="rps-arena">
+      <div class="rps-slot"><div class="face" id="rps-you-face">❔</div><div class="lab">YOU</div></div>
+      <div class="rps-vs">VS</div>
+      <div class="rps-slot"><div class="face" id="rps-cpu-face">❔</div><div class="lab">CPU</div></div>
+    </div>
+    <div class="rps-choices">
+      <button class="rps-btn" data-c="rock">🪨</button>
+      <button class="rps-btn" data-c="paper">📄</button>
+      <button class="rps-btn" data-c="scissors">✂️</button>
+    </div>
+    <div class="ng-hint" id="rps-hint">Pick rock, paper or scissors</div>
+    <div id="rps-result"></div>
+  `;
+  document.querySelectorAll('.rps-btn').forEach(b=>{
+    b.addEventListener('click', ()=>play(b.dataset.c));
+  });
+  function play(choice){
+    if(round>=maxRounds) return;
+    sfx.click();
+    const options=['rock','paper','scissors'];
+    const cpu = options[Math.floor(Math.random()*3)];
+    document.getElementById('rps-you-face').textContent = CHOICES[choice];
+    document.getElementById('rps-cpu-face').textContent = CHOICES[cpu];
+    round++;
+    let outcome;
+    if(choice===cpu) outcome='draw';
+    else if(
+      (choice==='rock'&&cpu==='scissors') ||
+      (choice==='paper'&&cpu==='rock') ||
+      (choice==='scissors'&&cpu==='paper')
+    ) outcome='win'; else outcome='loss';
+
+    if(outcome==='win') userScore++;
+    else if(outcome==='loss') cpuScore++;
+
+    document.getElementById('rps-uscore').textContent = userScore;
+    document.getElementById('rps-cscore').textContent = cpuScore;
+    document.getElementById('rps-round').textContent = Math.min(round+1,maxRounds);
+    document.getElementById('rps-hint').textContent =
+      outcome==='win' ? 'You won that round!' : outcome==='loss' ? 'Computer won that round.' : 'Round tied.';
+
+    if(round>=maxRounds){
+      document.querySelectorAll('.rps-btn').forEach(b=>b.disabled=true);
+      endRPS();
+    }
+  }
+  function endRPS(){
+    let result, coins, xp;
+    if(userScore>cpuScore){ result='win'; coins=70; xp=35; sfx.win(); }
+    else if(userScore<cpuScore){ result='loss'; coins=15; xp=8; sfx.lose(); }
+    else { result='draw'; coins=25; xp=12; sfx.draw(); }
+    document.getElementById('rps-result').innerHTML = resultBannerHTML(result, coins, xp);
+    finishGame('rps', result, coins, xp);
+  }
+}
+
+const GAME_INIT = { ttt:initTTT, memory:initMemory, guess:initGuess, reaction:initReaction, rps:initRPS };
+
+/* ============================================================
+   LEGAL MODALS
+   ============================================================ */
+const LEGAL_CONTENT = {
+  terms: {
+    title: 'Terms of use',
+    html: `<p><b>1. About Koushal Games.</b> Koushal Games is a free, skill-based entertainment platform featuring mini games such as Tic-Tac-Toe, Memory Match, Number Guess, Reaction Speed and Rock Paper Scissors.</p>
+    <p><b>2. Virtual currency.</b> Coins and XP earned on this platform are virtual in-app items only. They have no real-world monetary value, cannot be purchased with real money, and cannot be exchanged, transferred, redeemed or cashed out for real money, goods or services.</p>
+    <p><b>3. No gambling or betting.</b> Koushal Games does not offer gambling, wagering, betting, or any activity where a player risks money or something of monetary value for a chance-based or skill-based prize with cash value. All games are for entertainment only.</p>
+    <p><b>4. Fair play.</b> Please play fairly. Automated tools, scripts, or exploits that manipulate scores are not permitted.</p>
+    <p><b>5. Changes.</b> These terms may be updated from time to time. Continued use of the platform means you accept the current terms.</p>`
+  },
+  privacy: {
+    title: 'Privacy policy',
+    html: `<p><b>Information we use.</b> To run your session, Koushal Games keeps track of basic in-app details you choose to set, such as a display name and avatar, along with your in-session game stats (coins, XP, level, history).</p>
+    <p><b>No payment data.</b> Because Koushal Games never processes real-money transactions, we do not collect or store any payment card, bank, or financial account information.</p>
+    <p><b>Session data.</b> Progress shown in this demo is kept only for your current session and is not sold or shared with third parties for advertising.</p>
+    <p><b>Contact.</b> Questions about this policy can be directed to the site operator listed in the app.</p>`
+  },
+  responsible: {
+    title: 'Responsible gaming',
+    html: `<p>Koushal Games is designed purely for casual entertainment using virtual coins and XP that carry no cash value. There is no real-money deposit, withdrawal, purchase, or prize functionality anywhere on this platform.</p>
+    <p><b>Play in moderation.</b> Even with virtual rewards, we encourage balanced play. Take breaks, and don't treat in-app coins, levels or leaderboard rank as a measure of real-world value.</p>
+    <p><b>Not for minors seeking wagering-style experiences.</b> This platform is not a gambling product and should never be treated as, or substituted for, real-money gambling or betting.</p>
+    <p><b>Support.</b> If you or someone you know is struggling with gambling-related harm on other platforms, please reach out to a local support service or helpline in your region.</p>`
+  }
+};
+function openLegal(key){
+  const c = LEGAL_CONTENT[key];
+  document.getElementById('legal-modal-title').textContent = c.title;
+  document.getElementById('legal-modal-body').innerHTML = c.html;
+  document.getElementById('legal-modal-overlay').classList.add('open');
+}
+function closeLegalModal(){ document.getElementById('legal-modal-overlay').classList.remove('open'); }
+document.getElementById('legal-modal-overlay').addEventListener('click', (e)=>{
+  if(e.target.id==='legal-modal-overlay') closeLegalModal();
+});
+
+/* ============================================================
+   SOUND TOGGLE
+   ============================================================ */
+document.getElementById('sound-toggle').addEventListener('click', ()=>{
+  state.soundOn = !state.soundOn;
+  document.getElementById('sound-toggle').classList.toggle('on', state.soundOn);
+  const icon = document.getElementById('sound-icon');
+  icon.innerHTML = state.soundOn
+    ? '<path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18 6a9 9 0 0 1 0 12"/>'
+    : '<path d="M11 5 6 9H3v6h3l5 4V5Z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+  if(state.soundOn) beep(500,0.06,'square',0.05);
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.getElementById('daily-reward-overlay').addEventListener('click', (e)=>{
+  if(e.target.id==='daily-reward-overlay') closeDailyReward();
+});
+
+function init(){
+  renderGameGrids();
+  renderAvatarPicker();
+  updateAllUI();
+  renderLeaderboard();
+  setTimeout(()=> openDailyReward(), 900);
+}
+init();
+</script>
+</body>
+</html>
